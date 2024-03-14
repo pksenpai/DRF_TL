@@ -20,6 +20,12 @@ class UserRegisterSerializer(serializers.Serializer):
         write_only=True, # write_only means that this field only allows writing, not reading!
     ) 
     
+    def create(self, validated_data):
+        """ override create method """
+        del validated_data['password2'] # This is just a checker, but not among the model fields!
+        return User.objects.create_user(**validated_data)
+        # create_user include with set_password() method so don't worry about hashing password!
+    
     def validate_username(self, value: str) -> str:
         if 'admin' in value.lower():
             error = "sorry, admin can't be in username!"
@@ -40,14 +46,20 @@ class UserRegisterModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__' # all fields without exception!
-        # fields = ('username', 'email', 'password', 'password2') # choosen fields by tuple or list
+        # fields = '__all__' # all fields without exception!
+        fields = ('username', 'email', 'password', 'password2') # choosen fields by tuple or list
         # excludes = ('email',) # all fields exclude email!
         
         extra_kwargs = { # add extra options to serializer fields
             'password': {'write_only': True},
             'email': {'validators': (email_validator,)}
         }
+    
+    def create(self, validated_data): # fields='__all__' don't work with this!!! why?! %%%BUG%%%?
+        """ override create method """
+        del validated_data['password2'] # This is just a checker, but not among the model fields!
+        return User.objects.create_user(**validated_data)
+        # create_user include with set_password() method so don't worry about hashing password!
     
     def validate_username(self, value: str) -> str:
         if 'admin' in value.lower():

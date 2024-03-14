@@ -14,11 +14,7 @@ class UserRegisterView(APIView): # create user (C in CRUD)
         serialized_data = UserRegisterModelSerializer(data=request.POST) # data-> validate data from client
         if serialized_data.is_valid():
             data: dict = serialized_data.validated_data
-            User.objects.create_user(
-                username=data['username'],
-                email=data['email'],
-                password=data['password'],
-            )
+            serialized_data.create(data) # Custome create method
 
             return Response(serialized_data.data)
         return Response(serialized_data.errors) # return serializer auto errors
