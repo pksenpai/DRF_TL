@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 
 def email_validator(value: str) -> None:
@@ -33,3 +34,32 @@ class UserRegisterSerializer(serializers.Serializer):
         
         return data # data must be return
 
+
+class UserRegisterModelSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField(required=True, write_only=True)
+
+    class Meta:
+        model = User
+        fields = '__all__' # all fields without exception!
+        # fields = ('username', 'email', 'password', 'password2') # choosen fields by tuple or list
+        # excludes = ('email',) # all fields exclude email!
+        
+        extra_kwargs = { # add extra options to serializer fields
+            'password': {'write_only': True},
+            'email': {'validators': (email_validator,)}
+        }
+    
+    def validate_username(self, value: str) -> str:
+        if 'admin' in value.lower():
+            error = "sorry, admin can't be in username!"
+            raise serializers.ValidationError(error)
+        
+        return value # value must be return
+
+    def validate(self, data: dict) -> dict:
+        if data['password'] != data['password2']:
+            error = "password's not match!"
+            raise serializers.ValidationError(error)
+        
+        return data # data must be return
+    
