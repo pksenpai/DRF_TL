@@ -1,2 +1,2 @@
-# DRF_TL
-Test &amp; Learn DRF in Django.
+<h3>Django Rest Framework(Python/Django/RestFulAPI)</h3>
+This is a personal repository for self study by Test & Learn (TL) ...
