@@ -10,10 +10,11 @@ ________________________________________________________________________________
 '''
 from django.shortcuts import render
 
-from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BaseAuthentication
 
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, authentication_classes
 
 from .models import Person
 from .serializers import PersonPostSerializer
@@ -62,17 +63,19 @@ class UpdatePostAPIView(APIView):...
 
 class DeletePostAPIView(APIView):...
 
+
 """ FBV API CRUD """
 @api_view(['GET', 'POST'])
-def create_post_view(request):...
+@authentication_classes([SessionAuthentication, BaseAuthentication])
+def create_post_view(request):... #C
 
 @api_view() # by default only GET method is available
-def read_post_view(request):
+def read_post_view(request): #R
     return Response({'name': 'PKPY'})
 
 @api_view(['GET', 'PUT', 'PATCH'])
-def update_post_view(request):...
+def update_post_view(request):... #U
 
 @api_view(['GET', 'DELETE'])
-def delete_post_view(request):...
+def delete_post_view(request):... #D
 
