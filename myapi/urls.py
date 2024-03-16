@@ -4,6 +4,9 @@ from .views import *
 # CRUD...
 app_name = 'myapi'
 urlpatterns = [
+    path('posts/', PostView.as_view(), name='posts'),
+    
+    #____________________________________________________CRUD_EXAMPLES_________
     # CBV
     path('create/', CreatePostAPIView.as_view(), name='Create'),
     path('read/<str:name>/', ReadPostAPIView.as_view(), name='Read'),

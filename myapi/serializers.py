@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Post, Comment
 
 
 class PersonPostSerializer(serializers.Serializer):
@@ -8,3 +9,14 @@ class PersonPostSerializer(serializers.Serializer):
     email = serializers.EmailField()
     
     
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = '__all__'
+        
+        
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+

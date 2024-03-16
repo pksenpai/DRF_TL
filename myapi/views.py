@@ -14,13 +14,45 @@ from rest_framework.authentication import SessionAuthentication, BaseAuthenticat
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
-from .models import Person
-from .serializers import PersonPostSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
+from .models import Person, Post, Comment
+from .serializers import PersonPostSerializer, PostSerializer, CommentSerializer
 
 
+class PostView(APIView):
+    def get(self, request):
+        posts = Post.objects.all()
+        serialized_posts = PostSerializer(instance=posts, many=True).data
+        
+        return Response(serialized_posts, status=status.HTTP_200_OK)
+        
+    def post(self, request):...
+    def put(self, request, pk):...
+    def patch(self, request, pk):...
+    def delete(self, request, pk):...
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#_________________________________________________________CRUD_EXAMPLES_____________
 """ CBV API CRUD """
 class CreatePostAPIView(APIView): #C
     permission_classes = [IsAuthenticated,]
@@ -61,13 +93,9 @@ class ReadPostAPIView(APIView): #R
         
         flag = True
         return Response(data=data1 if flag else data2)
-
-
+    
 class UpdatePostAPIView(APIView):... #U
-
-
 class DeletePostAPIView(APIView):... #D
-
 
 """ FBV API CRUD """
 @api_view(['GET', 'POST'])
@@ -85,4 +113,4 @@ def update_post_view(request):... #U
 
 @api_view(['GET', 'DELETE'])
 def delete_post_view(request):... #D
-
+#__________________________________________________________________________________________
