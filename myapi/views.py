@@ -23,6 +23,127 @@ from .models import Person, Post, Comment
 from .serializers import PersonPostSerializer, PostSerializer, CommentSerializer
 
 
+#_____________________________________________________________________CBV_Example________________
+class PostsListAPIView(APIView):
+    permission_classes = [AllowAny,]
+    
+    def get(self, request):
+        posts = Post.objects.all()
+        if posts:
+            serialized_posts = PostSerializer(instance=posts, many=True).data
+            
+            return Response(serialized_posts, status=status.HTTP_200_OK)
+        return Response({'message': "no posts found!:("}, status=status.HTTP_404_NOT_FOUND)
+
+
+""" CBV API CRUD """
+class CreatePostAPIView(APIView): #C
+    permission_classes = [IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser]
+    
+    def post(self, request):
+        # reqest.POST | request.FILES --> can be use too!
+        data = request.data # request Body data
+        serialized_data = PostSerializer(data=data)
+        if serialized_data.is_valid():
+            serialized_data.save()
+            
+            return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+        return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReadPostAPIView(APIView): #R
+    permission_classes = [AllowAny,] # AllowAny is by default permission on hole project!
+    
+    def get(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post:
+            serialized_post = PostSerializer(instance=post)
+            
+            return Response(serialized_post.data, status=status.HTTP_200_OK)
+        return Response({'message': "page not found!:("}, status=status.HTTP_404_NOT_FOUND)
+        
+    
+class UpdatePostAPIView(APIView): #U
+    permission_classes = [IsAdminUser, IsAuthenticatedOrReadOnly]
+    
+    def put(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post:
+            serialized_post = PostSerializer(instance=post, data=request.data, partial=True)
+            if serialized_post.is_valid():
+                serialized_post.save()
+                
+                return Response(serialized_post.data, status=status.HTTP_200_OK)
+            return Response(serialized_post.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': "post not found!:("}, status=status.HTTP_404_NOT_FOUND)
+        
+    def patch(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post:
+            serialized_post = PostSerializer(instance=post, data=request.data, partial=True)
+            if serialized_post.is_valid():
+                serialized_post.save()
+                
+                return Response(serialized_post.data, status=status.HTTP_200_OK)
+            return Response(serialized_post.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': "post not found!:("}, status=status.HTTP_404_NOT_FOUND)
+
+    
+class DeletePostAPIView(APIView): #D
+    permission_classes = [IsAdminUser, IsAuthenticatedOrReadOnly]
+
+    def delete(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post:
+            post.delete()
+            return Response({'message': "post deleted!:p"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': "post not found!:("}, status=status.HTTP_404_NOT_FOUND)
+                
+
+#______________________________________________________________________FBV_Example____________________
+""" FBV API CRUD """
+@api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication, BaseAuthentication])
+@permission_classes([IsAuthenticatedOrReadOnly,])
+def create_post_view(request): #C
+    serialized_data = PostSerializer(data=request.data)
+    if serialized_data.is_valid():
+        serialized_data.save()
+        
+        return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+    return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view() # by default only GET method is available
+@permission_classes([IsAdminUser,])
+def read_post_view(request, pk): #R
+    post = Post.objects.get(pk=pk)
+    if post:
+        serialized_post = PostSerializer(instance=post)
+        
+        return Response(serialized_post.data, status=status.HTTP_200_OK)
+    return Response({'message': "page not found!:("}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PUT', 'PATCH'])
+def update_post_view(request, pk): #U
+    post = Post.objects.get(pk=pk)
+    if post:
+        serialized_post = PostSerializer(instance=post, data=request.data, partial=True)
+        if serialized_post.is_valid():
+            serialized_post.save()
+            
+            return Response(serialized_post.data, status=status.HTTP_200_OK)
+        return Response(serialized_post.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': "post not found!:("}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+def delete_post_view(request, pk): #D
+    post = Post.objects.get(pk=pk)
+    if post:
+        post.delete()
+        return Response({'message': "post deleted!:p"}, status=status.HTTP_404_NOT_FOUND)
+    return Response({'message': "post not found!:("}, status=status.HTTP_404_NOT_FOUND)
+
+#_____________________________________________________________________UnitView_Example________________
 class PostView(APIView):
     def get(self, request):
         posts = Post.objects.all()
@@ -44,7 +165,7 @@ class PostView(APIView):
         if serialized_post.is_valid():
             serialized_post.save()
             
-            return Response(serialized_post.data, status=status.HTTP_204_NO_CONTENT)
+            return Response(serialized_post.data, status=status.HTTP_200_OK)
         return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def patch(self, request, pk):
@@ -53,7 +174,7 @@ class PostView(APIView):
         if serialized_post.is_valid():
             serialized_post.save()
             
-            return Response(serialized_post.data, status=status.HTTP_204_NO_CONTENT)
+            return Response(serialized_post.data, status=status.HTTP_200_OK)
         return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request, pk):
@@ -61,82 +182,3 @@ class PostView(APIView):
         post.delete()
         return Response({'message': "post deleted!"}, status=status.HTTP_200_OK)
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#_________________________________________________________CRUD_EXAMPLES_____________
-""" CBV API CRUD """
-class CreatePostAPIView(APIView): #C
-    permission_classes = [IsAuthenticated,]
-    
-    def post(self, request):
-        # reqest.POST | request.FILES --> can be use too!
-        data = request.data # request Body data
-        name, age = data['name'], data['age']
-        result = {'name': name, 'age': age}
-        
-        return Response(result)
-        
-
-class ReadPostAPIView(APIView): #R
-    permission_classes = [AllowAny,] # AllowAny is by default permission on hole project!
-    
-    def get(self, request, name):
-        # 001
-        result = {'NAME': name}
-        qparam: dict = request.query_params
-        result.update(qparam)
-        
-        # 002
-        persons = Person.objects.all()
-        serialized_data = PersonPostSerializer(instance=persons, many=True) # use many for queryset
-   
-        someone = Person.objects.get(name='Parsa', id=1)
-        serialized_someone = PersonPostSerializer(instance=someone) # remove many
-
-        ################################
-        print(serialized_data)
-        print('-'*20)
-        print(serialized_data.data)
-        ################################
-        
-        data1 = {'s': serialized_data.data, 'r': result}
-        data2 = {'s': serialized_someone.data, 'r': result}
-        
-        flag = True
-        return Response(data=data1 if flag else data2)
-    
-class UpdatePostAPIView(APIView):... #U
-class DeletePostAPIView(APIView):... #D
-
-""" FBV API CRUD """
-@api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BaseAuthentication])
-@permission_classes([IsAuthenticatedOrReadOnly,])
-def create_post_view(request):... #C
-
-@api_view() # by default only GET method is available
-@permission_classes([IsAdminUser,])
-def read_post_view(request): #R
-    return Response({'name': 'PKPY'})
-
-@api_view(['GET', 'PUT', 'PATCH'])
-def update_post_view(request):... #U
-
-@api_view(['GET', 'DELETE'])
-def delete_post_view(request):... #D
-#__________________________________________________________________________________________
