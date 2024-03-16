@@ -131,8 +131,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [ # set up the authentication type for hole project
+    'DEFAULT_AUTHENTICATION_CLASSES': [ # set up the authentication type for hole project!
         'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BaseAuthentication', # Only appropriate for testing!
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [ # set up the default permissions policy for hole project!
+        # 'rest_framework.permissions.IsAuthenticated', # I prefer set it on a per-view or per-viewset 
+        # 'rest_framework.permissions.AllowAny', # permission settings by default!
     ]
 }

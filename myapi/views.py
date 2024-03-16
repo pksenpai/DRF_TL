@@ -11,17 +11,20 @@ ________________________________________________________________________________
 from django.shortcuts import render
 
 from rest_framework.authentication import SessionAuthentication, BaseAuthentication
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from .models import Person
 from .serializers import PersonPostSerializer
 
 
 """ CBV API CRUD """
-class CreatePostAPIView(APIView):
+class CreatePostAPIView(APIView): #C
+    permission_classes = [IsAuthenticated,]
+    
     def post(self, request):
         # reqest.POST | request.FILES --> can be use too!
         data = request.data # request Body data
@@ -31,7 +34,9 @@ class CreatePostAPIView(APIView):
         return Response(result)
         
 
-class ReadPostAPIView(APIView):
+class ReadPostAPIView(APIView): #R
+    permission_classes = [AllowAny,] # AllowAny is by default permission on hole project!
+    
     def get(self, request, name):
         # 001
         result = {'NAME': name}
@@ -58,18 +63,20 @@ class ReadPostAPIView(APIView):
         return Response(data=data1 if flag else data2)
 
 
-class UpdatePostAPIView(APIView):...
+class UpdatePostAPIView(APIView):... #U
 
 
-class DeletePostAPIView(APIView):...
+class DeletePostAPIView(APIView):... #D
 
 
 """ FBV API CRUD """
 @api_view(['GET', 'POST'])
 @authentication_classes([SessionAuthentication, BaseAuthentication])
+@permission_classes([IsAuthenticatedOrReadOnly,])
 def create_post_view(request):... #C
 
 @api_view() # by default only GET method is available
+@permission_classes([IsAdminUser,])
 def read_post_view(request): #R
     return Response({'name': 'PKPY'})
 
