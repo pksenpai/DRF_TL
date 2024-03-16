@@ -48,7 +48,7 @@ class UserRegisterModelSerializer(serializers.ModelSerializer):
         model = User
         # fields = '__all__' # all fields without exception!
         fields = ('username', 'email', 'password', 'password2') # choosen fields by tuple or list
-        # excludes = ('email',) # all fields exclude email!
+        # exclude = ('email',) # all fields exclude email!
         
         extra_kwargs = { # add extra options to serializer fields
             'password': {'write_only': True},

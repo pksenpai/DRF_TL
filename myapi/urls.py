@@ -4,7 +4,8 @@ from .views import *
 # CRUD...
 app_name = 'myapi'
 urlpatterns = [
-    path('posts/', PostView.as_view(), name='posts'),
+    path('posts/', PostView.as_view(), name='posts'), # use for get & post!
+    path('posts/<int:pk>/', PostView.as_view(), name='post_update'), # use for put, patch & delete!
     
     #____________________________________________________CRUD_EXAMPLES_________
     # CBV

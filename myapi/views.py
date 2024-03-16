@@ -30,10 +30,36 @@ class PostView(APIView):
         
         return Response(serialized_posts, status=status.HTTP_200_OK)
         
-    def post(self, request):...
-    def put(self, request, pk):...
-    def patch(self, request, pk):...
-    def delete(self, request, pk):...
+    def post(self, request):
+        serialized_data = PostSerializer(data=request.data) # or request.POST
+        if serialized_data.is_valid():
+            serialized_data.save()
+            
+            return Response(serialized_data.data, status=status.HTTP_201_CREATED)
+        return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        serialized_post = PostSerializer(instance=post, data=request.data, partial=True)
+        if serialized_post.is_valid():
+            serialized_post.save()
+            
+            return Response(serialized_post.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def patch(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        serialized_post = PostSerializer(instance=post, data=request.data, partial=True)
+        if serialized_post.is_valid():
+            serialized_post.save()
+            
+            return Response(serialized_post.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        post.delete()
+        return Response({'message': "post deleted!"}, status=status.HTTP_200_OK)
     
 
 
