@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import Post, Comment
+from .related_fileds import FullNameRelatedField
 
 
 class PersonPostSerializer(serializers.Serializer):
@@ -10,6 +12,16 @@ class PersonPostSerializer(serializers.Serializer):
     
     
 class PostSerializer(serializers.ModelSerializer):
+
+    ''' show fullname of user: first_name + last_name '''
+    author = FullNameRelatedField(read_only=True) # Custome related field
+
+    ''' show __str__ of related model --> here is str(User) '''
+    # author = serializers.StringRelatedField(read_only=True) # only read this related element in json
+    
+    ''' choose a field of related model '''
+    # author = serializers.SlugRelatedField(read_only=True, slug_field='email')
+
     ''' There are two ways to connect methods to fields '''
     comments = serializers.SerializerMethodField(
         # method_name=comments # --> way1
